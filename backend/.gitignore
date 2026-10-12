@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 data/
+!tolldirect/data/
+!tolldirect/data/demo-readonly.db
