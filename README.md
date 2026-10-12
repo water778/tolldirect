@@ -6,4 +6,6 @@ TollDirect is a proposed event-triggered settlement system. One toll crossing du
 
 This repository does not connect to Uber, Lyft, E-ZPass, banks, cards, or Stripe. No credentials are collected and no money moves.
 
-See `FEASIBILITY.md` for the partnership and timing findings. Open `index.html` for the mobile prototype.
+Open `index.html` for the mobile prototype. The simulated backend is in `backend/`.
+
+EZDriveMA customer service refused a pre-debit credit on 12 October 2026. See `EZDRIVEMA-REPLY.md`. The backend remains simulation only.
