@@ -2,7 +2,7 @@
 
 Prototype only. Simulation / pending official partner integration.
 
-TollDirect is a proposed direct toll-payment allocation system. The passenger-funded toll portion is routed to the driver’s registered E-ZPass account. It is not a driver reimbursement app. The driver is not an intermediary, and the driver’s bank account is excluded.
+TollDirect is a proposed event-triggered settlement system. One toll crossing during an active passenger trip produces one passenger payment, credited to the vehicle’s E-ZPass account. The driver does not fund the toll. See `ARCHITECTURE.md`.
 
 This repository does not connect to Uber, Lyft, E-ZPass, banks, cards, or Stripe. No credentials are collected and no money moves.
 

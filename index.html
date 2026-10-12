@@ -82,7 +82,7 @@
       <div class="row">
         <div>
           <h1>TollDirect</h1>
-          <p id="head-sub">Direct E-ZPass allocation</p>
+          <p id="head-sub">One crossing. One passenger payment. Direct to E-ZPass.</p>
         </div>
         <span class="pill sim">Prototype</span>
       </div>
@@ -162,6 +162,20 @@
       </section>
     </main>
 
+    
+    <main id="events" class="screen">
+      <h2>Toll event sequence</h2>
+      <section class="card">
+        <p><b>One toll crossing. One passenger payment. Direct to E-ZPass. No driver funding.</b></p>
+        <p class="note">Immediate payment at the gantry is not required. Official Massachusetts posts are delayed. This sequence is simulated.</p>
+      </section>
+      <div id="event-list"></div>
+      <section class="card">
+        <div class="k">Official timing used</div>
+        <p class="note">Mass.gov sample: exit 21 Sep, post 24 Sep. A 2018 MassDOT report described a 2-to-5-day trip-building period. No 24-hour or 48-hour grace period for a zero E-ZPass balance was found. A balance at or below $0 can produce a Pay By Plate invoice.</p>
+      </section>
+    </main>
+
     <main id="how" class="screen">
       <h2>How it works</h2>
       <section class="card">
@@ -207,6 +221,7 @@
       <button class="on" data-go="dash" type="button">Home<br>Dashboard</button>
       <button data-go="settle" type="button">Trips<br>Settle</button>
       <button data-go="pass" type="button">E-ZPass<br>Balance</button>
+      <button data-go="events" type="button">Event<br>Sequence</button>
       <button data-go="how" type="button">How<br>It works</button>
       <button data-go="partners" type="button">Partners<br>Feasibility</button>
     </nav>
@@ -218,7 +233,8 @@
       settle: 'Trip toll settlement',
       pass: 'E-ZPass balance',
       how: 'How it works',
-      partners: 'Partner feasibility'
+      partners: 'Partner feasibility',
+      events: 'Event sequence'
     };
     const trips = [
       { id: 'TD-10482', route: 'Boston to Logan via Tobin Bridge', amount: 3.50, status: 'Pending', when: 'Today 2:14 PM', audit: [['Trip linked to E-ZPass ending 4821', 'Today 2:14 PM'], ['Eligible toll portion identified from fare', 'Simulation'], ['Awaiting authorized routing', 'Not paid to driver']] },
@@ -237,6 +253,26 @@
       clearTimeout(toast._t);
       toast._t = setTimeout(() => el.classList.remove('show'), 2400);
     }
+    
+    const events = [
+      { id: 'GX-2201', trip: 'Active Uber trip', gantry: 'Tobin Bridge', amount: 3.50, state: 'Official post pending', note: 'Crossing detected. Passenger not charged until official amount. Driver balance untouched.' },
+      { id: 'GX-2194', trip: 'Active Lyft trip', gantry: 'Sumner Tunnel', amount: 2.65, state: 'Passenger charged', note: 'Official post received. Charged to the passenger trip method already on file. No second charge.' },
+      { id: 'GX-2188', trip: 'Active Uber trip', gantry: 'Ted Williams Tunnel', amount: 2.65, state: 'Credited to E-ZPass', note: 'Passenger funds credited to vehicle E-ZPass ending 4821. Driver was not paid and did not replenish.' },
+      { id: 'GX-2170', trip: 'Active Lyft trip', gantry: 'Tobin Bridge', amount: 0.50, state: 'Commercial adjustment', note: 'Later commercial-rate difference applied to the same crossing. Not a new passenger charge.' },
+      { id: 'GX-2162', trip: 'Active Uber trip', gantry: 'Callahan Tunnel', amount: 2.65, state: 'Credit failed', note: 'Passenger charge held. No driver fallback. No duplicate E-ZPass credit.' }
+    ];
+    function renderEvents() {
+      const box = document.getElementById('event-list');
+      if (!box) return;
+      box.innerHTML = events.map(e =>
+        '<button class="item" type="button" data-ev="' + e.id + '"><b>' + e.id + ' · ' + e.gantry + '</b><span>' + e.trip + ' · ' + money(e.amount) + '</span><br><span class="pill sim">' + e.state + '</span></button>'
+      ).join('');
+      box.querySelectorAll('.item').forEach(btn => btn.onclick = () => {
+        const e = events.find(x => x.id === btn.dataset.ev);
+        toast(e.state + ': ' + e.note);
+      });
+    }
+
     function money(n) { return '$' + n.toFixed(2); }
     function show(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
@@ -321,6 +357,7 @@
       catch (e) { toast(text); }
     };
     renderTrips('all');
+    renderEvents();
     renderHistory();
     refreshMoney();
   </script>
