@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B1F3A">
+  <meta name="description" content="TollDirect prototype. Simulation only. Pending official partner integration.">
+  <title>TollDirect — Driver toll protection</title>
+  <style>
+    :root {
+      --ink: #122033;
+      --muted: #5C6B7E;
+      --navy: #0B1F3A;
+      --teal: #0E7C7B;
+      --teal-soft: #E7F6F5;
+      --line: #E4EAF1;
+      --bg: #F4F7FB;
+      --card: #fff;
+      --warn: #B86E00;
+      --warn-bg: #FFF6E8;
+      --ok: #0F7A45;
+      --ok-bg: #E8F7EF;
+      --bad: #B42318;
+      --bad-bg: #FDECEC;
+      --sim: #7A4B00;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #E8EEF5; color: var(--ink); }
+    .app { max-width: 430px; min-height: 100vh; margin: 0 auto; background: var(--bg); position: relative; padding-bottom: 86px; box-shadow: 0 0 0 1px #d7e0ea; }
+    .simbar { position: sticky; top: 0; z-index: 8; background: #FFF4D6; color: var(--sim); font-size: 12px; font-weight: 750; padding: 7px 14px; border-bottom: 1px solid #F0D48A; }
+    header.app-head { background: var(--navy); color: #fff; padding: 16px 16px 14px; }
+    header.app-head h1 { margin: 0; font-size: 22px; letter-spacing: -.3px; }
+    header.app-head p { margin: 4px 0 0; color: #C9D7E8; font-size: 13px; }
+    .screen { display: none; padding: 14px; }
+    .screen.on { display: block; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin: 0 0 12px; }
+    .row { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .k { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+    .v { font-size: 28px; font-weight: 800; letter-spacing: -.4px; margin-top: 2px; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 4px; line-height: 1.4; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 800; }
+    .pill.ok { background: var(--ok-bg); color: var(--ok); }
+    .pill.warn { background: var(--warn-bg); color: var(--warn); }
+    .pill.bad { background: var(--bad-bg); color: var(--bad); }
+    .pill.sim { background: #FFF4D6; color: var(--sim); }
+    button, .btn { border: 0; border-radius: 12px; min-height: 44px; padding: 0 14px; font-weight: 800; font-size: 14px; cursor: pointer; }
+    .btn-primary { background: var(--teal); color: #fff; width: 100%; }
+    .btn-ghost { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+    .btn-row { display: flex; gap: 8px; }
+    .btn-row button { flex: 1; }
+    .item { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin: 0 0 10px; }
+    .item b { display: block; font-size: 15px; }
+    .item span { color: var(--muted); font-size: 12px; }
+    .filters { display: flex; gap: 6px; overflow: auto; margin: 0 0 12px; }
+    .filters button { min-height: 36px; background: #fff; border: 1px solid var(--line); color: var(--navy); font-size: 13px; }
+    .filters button.on { background: var(--navy); color: #fff; }
+    .steps { counter-reset: s; }
+    .steps li { list-style: none; margin: 0 0 12px; padding-left: 36px; position: relative; }
+    .steps { margin: 0; padding: 0; }
+    .steps li:before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--teal); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: 13px; }
+    .audit { border-left: 2px solid #D5E2EE; margin: 8px 0 0 6px; padding-left: 12px; }
+    .audit p { margin: 0 0 8px; font-size: 13px; }
+    .audit time { display: block; color: var(--muted); font-size: 11px; }
+    nav.dock { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: min(430px, 100%); background: #fff; border-top: 1px solid var(--line); display: flex; z-index: 7; padding: 4px 2px calc(6px + env(safe-area-inset-bottom)); }
+    nav.dock button { flex: 1; background: none; color: #7B8A9C; min-height: 52px; font-size: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 0; }
+    nav.dock button.on { color: var(--navy); }
+    .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 78px; background: var(--navy); color: #fff; border-radius: 12px; padding: 10px 14px; font-size: 13px; width: min(390px, calc(100% - 24px)); display: none; z-index: 9; }
+    .toast.show { display: block; }
+    h2 { margin: 0 0 10px; font-size: 18px; }
+    .note { font-size: 13px; color: var(--muted); line-height: 1.45; }
+    input { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: 16px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin: 8px 0 4px; }
+    @media (min-width: 768px) { body { padding: 24px 0; } .app { border-radius: 24px; overflow: hidden; min-height: 780px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="simbar">Simulation / pending official partner integration</div>
+    <header class="app-head">
+      <div class="row">
+        <div>
+          <h1>TollDirect</h1>
+          <p id="head-sub">Driver toll protection</p>
+        </div>
+        <span class="pill sim">Prototype</span>
+      </div>
+    </header>
+
+    <main id="dash" class="screen on">
+      <section class="card">
+        <div class="row">
+          <div>
+            <div class="k">E-ZPass balance</div>
+            <div class="v" id="dash-balance">$18.40</div>
+            <div class="sub">Account ending 4821 · not a live connection</div>
+          </div>
+          <span class="pill warn" id="protected-pill">Protected balance: at risk</span>
+        </div>
+      </section>
+      <div class="grid2">
+        <section class="card"><div class="k">Today’s tolls</div><div class="v" id="dash-tolls">$14.75</div><div class="sub">3 simulated events</div></section>
+        <section class="card"><div class="k">Routed today</div><div class="v" id="dash-routed">$9.25</div><div class="sub">Fare toll portion only</div></section>
+      </div>
+      <section class="card" id="alert-card">
+        <div class="k">Upcoming low-balance alert</div>
+        <p><b>Balance is below the $25 threshold.</b></p>
+        <p class="note">In production this would request an official settlement from the rideshare platform. No personal bank recharge is required in the TollDirect model. This alert is simulated.</p>
+        <button class="btn-primary" id="ack-alert" type="button">Acknowledge simulated alert</button>
+      </section>
+      <section class="card">
+        <div class="k">Rider protection</div>
+        <p class="note">The rider is charged once, inside the trip fare. TollDirect never adds a second toll charge.</p>
+        <button class="btn-ghost" data-go="settle" type="button" style="width:100%;margin-top:8px">Open trip settlements</button>
+      </section>
+    </main>
+
+    <main id="settle" class="screen">
+      <h2>Trip toll settlement</h2>
+      <div class="filters" id="filters">
+        <button class="on" data-filter="all" type="button">All</button>
+        <button data-filter="Pending" type="button">Pending</button>
+        <button data-filter="Confirmed" type="button">Confirmed</button>
+        <button data-filter="Sent to E-ZPass" type="button">Sent</button>
+        <button data-filter="Failed" type="button">Failed</button>
+      </div>
+      <div id="trip-list"></div>
+      <section class="card" id="trip-detail" hidden>
+        <div class="k">Settlement detail</div>
+        <p><b id="d-ref"></b></p>
+        <p class="sub" id="d-route"></p>
+        <p>Passenger fare toll portion: <b id="d-amt"></b></p>
+        <p>Status: <span class="pill" id="d-status"></span></p>
+        <p>Driver E-ZPass ending: <b>4821</b></p>
+        <div class="audit" id="d-audit"></div>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn-primary" id="advance" type="button">Advance simulated status</button>
+          <button class="btn-ghost" id="close-detail" type="button">Close</button>
+        </div>
+      </section>
+    </main>
+
+    <main id="pass" class="screen">
+      <h2>E-ZPass balance & history</h2>
+      <section class="card">
+        <div class="k">Current balance</div>
+        <div class="v" id="pass-balance">$18.40</div>
+        <p class="sub">No real E-ZPass account is connected. Ending digits 4821 are sample data.</p>
+        <label for="threshold">Low-balance threshold</label>
+        <input id="threshold" type="number" min="5" max="200" value="25">
+        <button class="btn-primary" id="save-threshold" type="button" style="margin-top:8px">Save simulated threshold</button>
+      </section>
+      <section class="card">
+        <div class="k">Automatic settlement history</div>
+        <div id="history"></div>
+      </section>
+    </main>
+
+    <main id="how" class="screen">
+      <h2>How it works</h2>
+      <section class="card">
+        <ol class="steps">
+          <li><b>Passenger pays the trip fare once.</b><p class="note">The toll is already inside that fare. TollDirect does not create a second charge.</p></li>
+          <li><b>The toll portion is identified.</b><p class="note">A future official rideshare feed would mark the toll component of the fare.</p></li>
+          <li><b>That portion is routed to the driver’s E-ZPass account.</b><p class="note">Settlement would go to the designated transponder account, not through the driver’s personal bank.</p></li>
+          <li><b>The driver does not recharge from a personal bank account.</b><p class="note">Low balance is covered by fare toll portions already collected from riders.</p></li>
+        </ol>
+      </section>
+      <section class="card">
+        <div class="k">Before launch</div>
+        <p class="note">This flow is a design prototype. It requires official agreements with the rideshare platform, the E-ZPass or toll authority, and a licensed payment provider before any real routing can happen.</p>
+        <button class="btn-primary" data-go="partners" type="button">View required partners</button>
+      </section>
+    </main>
+
+    <main id="partners" class="screen">
+      <h2>Partner / compliance</h2>
+      <section class="card">
+        <div class="k">Required before any live payment</div>
+        <p><b>Rideshare platform</b></p>
+        <p class="note">Official agreement to identify the toll portion of a paid trip fare and release that portion for driver toll settlement.</p>
+        <p><b>E-ZPass / toll authority</b></p>
+        <p class="note">Official account-credit path to a driver’s designated transponder account.</p>
+        <p><b>Licensed payment provider</b></p>
+        <p class="note">Regulated movement of funds. TollDirect does not hold or move money in this prototype.</p>
+      </section>
+      <section class="card">
+        <span class="pill sim">No live payments</span>
+        <p class="note">No live payments until official approvals and compliance are completed. Buttons on this prototype only change simulated status.</p>
+        <button class="btn-ghost" id="export-audit" type="button" style="width:100%">Copy simulated audit summary</button>
+      </section>
+    </main>
+
+    <nav class="dock" aria-label="Primary">
+      <button class="on" data-go="dash" type="button">Home<br>Dashboard</button>
+      <button data-go="settle" type="button">Trips<br>Settle</button>
+      <button data-go="pass" type="button">E-ZPass<br>Balance</button>
+      <button data-go="how" type="button">How<br>It works</button>
+      <button data-go="partners" type="button">Partners<br>Compliance</button>
+    </nav>
+    <div class="toast" id="toast" role="status"></div>
+  </div>
+  <script>
+    const titles = {
+      dash: 'Driver dashboard',
+      settle: 'Trip toll settlement',
+      pass: 'E-ZPass balance',
+      how: 'How it works',
+      partners: 'Partner and compliance'
+    };
+    const trips = [
+      { id: 'TD-10482', route: 'Boston to Logan via Tobin Bridge', amount: 3.50, status: 'Pending', when: 'Today 2:14 PM', audit: [['Fare toll portion identified', 'Today 2:14 PM'], ['Waiting for official platform release', 'Simulation']] },
+      { id: 'TD-10471', route: 'Cambridge to Seaport, Sumner Tunnel', amount: 6.00, status: 'Confirmed', when: 'Today 11:02 AM', audit: [['Fare toll portion identified', 'Today 11:02 AM'], ['Platform release confirmed', 'Simulation'], ['Queued for E-ZPass credit', 'Simulation']] },
+      { id: 'TD-10455', route: 'Somerville to Airport, Tobin Bridge', amount: 5.25, status: 'Sent to E-ZPass', when: 'Today 8:41 AM', audit: [['Fare toll portion identified', 'Today 8:41 AM'], ['Confirmed', 'Simulation'], ['Sent to E-ZPass account ending 4821', 'Simulation']] },
+      { id: 'TD-10390', route: 'Revere to Downtown, Callahan Tunnel', amount: 3.50, status: 'Failed', when: 'Yesterday 6:18 PM', audit: [['Fare toll portion identified', 'Yesterday 6:18 PM'], ['Settlement failed in simulation', 'No partner feed'], ['No personal bank fallback was used', 'By design']] }
+    ];
+    let selected = null;
+    let threshold = 25;
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove('show'), 2400);
+    }
+    function money(n) { return '$' + n.toFixed(2); }
+    function show(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+      document.querySelectorAll('.dock button').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+      document.getElementById('head-sub').textContent = titles[id];
+    }
+    function pillClass(status) {
+      if (status === 'Sent to E-ZPass' || status === 'Confirmed') return 'ok';
+      if (status === 'Failed') return 'bad';
+      return 'warn';
+    }
+    function renderTrips(filter) {
+      const box = document.getElementById('trip-list');
+      const rows = trips.filter(t => filter === 'all' || t.status === filter);
+      box.innerHTML = rows.map(t =>
+        '<button class="item" type="button" data-id="' + t.id + '"><b>' + t.id + ' · ' + money(t.amount) + '</b><span>' + t.route + '</span><br><span class="pill ' + pillClass(t.status) + '">' + t.status + '</span></button>'
+      ).join('') || '<p class="note">No simulated settlements in this filter.</p>';
+      box.querySelectorAll('.item').forEach(btn => btn.onclick = () => openTrip(btn.dataset.id));
+    }
+    function openTrip(id) {
+      selected = trips.find(t => t.id === id);
+      const d = document.getElementById('trip-detail');
+      d.hidden = false;
+      document.getElementById('d-ref').textContent = selected.id;
+      document.getElementById('d-route').textContent = selected.route;
+      document.getElementById('d-amt').textContent = money(selected.amount);
+      const st = document.getElementById('d-status');
+      st.textContent = selected.status;
+      st.className = 'pill ' + pillClass(selected.status);
+      document.getElementById('d-audit').innerHTML = selected.audit.map(a => '<p>' + a[0] + '<time>' + a[1] + '</time></p>').join('');
+      d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function renderHistory() {
+      document.getElementById('history').innerHTML = trips.map(t =>
+        '<div class="item" style="cursor:default"><b>' + t.id + ' · ' + money(t.amount) + '</b><span>' + t.when + ' · ' + t.status + '</span></div>'
+      ).join('');
+    }
+    function refreshMoney() {
+      const routed = trips.filter(t => t.status === 'Sent to E-ZPass' || t.status === 'Confirmed').reduce((s, t) => s + t.amount, 0);
+      const tolls = trips.filter(t => t.when.indexOf('Today') === 0).reduce((s, t) => s + t.amount, 0);
+      document.getElementById('dash-tolls').textContent = money(tolls);
+      document.getElementById('dash-routed').textContent = money(routed);
+    }
+    document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
+    document.getElementById('filters').onclick = (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#filters button').forEach(x => x.classList.toggle('on', x === btn));
+      renderTrips(btn.dataset.filter);
+    };
+    document.getElementById('close-detail').onclick = () => { document.getElementById('trip-detail').hidden = true; selected = null; };
+    document.getElementById('advance').onclick = () => {
+      if (!selected) return;
+      const order = ['Pending', 'Confirmed', 'Sent to E-ZPass'];
+      if (selected.status === 'Failed') { toast('Failed simulation stays failed. No bank fallback.'); return; }
+      const i = order.indexOf(selected.status);
+      if (i < order.length - 1) {
+        selected.status = order[i + 1];
+        selected.audit.push([selected.status + ' (simulated)', 'Just now']);
+        openTrip(selected.id);
+        renderTrips(document.querySelector('#filters button.on').dataset.filter);
+        renderHistory();
+        refreshMoney();
+        toast('Simulated status: ' + selected.status);
+      } else toast('Already sent in this simulation.');
+    };
+    document.getElementById('ack-alert').onclick = () => {
+      document.getElementById('alert-card').querySelector('p').innerHTML = '<b>Alert acknowledged in simulation.</b>';
+      toast('Simulated alert acknowledged. No payment was made.');
+    };
+    document.getElementById('save-threshold').onclick = () => {
+      threshold = Number(document.getElementById('threshold').value) || 25;
+      const atRisk = 18.40 < threshold;
+      const pill = document.getElementById('protected-pill');
+      pill.textContent = atRisk ? 'Protected balance: at risk' : 'Protected balance: above threshold';
+      pill.className = 'pill ' + (atRisk ? 'warn' : 'ok');
+      toast('Simulated threshold saved at $' + threshold + '.');
+    };
+    document.getElementById('export-audit').onclick = async () => {
+      const text = 'TollDirect simulation audit. No live payments. Account ending 4821. ' + trips.map(t => t.id + ' ' + t.status + ' ' + money(t.amount)).join('; ');
+      try { await navigator.clipboard.writeText(text); toast('Simulated audit summary copied.'); }
+      catch (e) { toast(text); }
+    };
+    renderTrips('all');
+    renderHistory();
+    refreshMoney();
+  </script>
+</body>
+</html>
