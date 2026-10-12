@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0B1F3A">
   <meta name="description" content="TollDirect prototype. Simulation only. Pending official partner integration.">
-  <title>TollDirect — Driver toll protection</title>
+  <title>TollDirect — Direct E-ZPass allocation</title>
+  <meta name="description" content="TollDirect simulation. Passenger toll portion routes directly to the driver’s E-ZPass account. Not a reimbursement app.">
   <style>
     :root {
       --ink: #122033;
@@ -81,13 +82,18 @@
       <div class="row">
         <div>
           <h1>TollDirect</h1>
-          <p id="head-sub">Driver toll protection</p>
+          <p id="head-sub">Direct E-ZPass allocation</p>
         </div>
         <span class="pill sim">Prototype</span>
       </div>
     </header>
 
     <main id="dash" class="screen on">
+      <section class="card">
+        <div class="k">Authorized path</div>
+        <p><b>Passenger → TollDirect routing → driver’s E-ZPass</b></p>
+        <p class="note">The driver is not an intermediary. The driver’s bank account is excluded. This is not a reimbursement.</p>
+      </section>
       <section class="card">
         <div class="row">
           <div>
@@ -100,17 +106,17 @@
       </section>
       <div class="grid2">
         <section class="card"><div class="k">Today’s tolls</div><div class="v" id="dash-tolls">$14.75</div><div class="sub">3 simulated events</div></section>
-        <section class="card"><div class="k">Routed today</div><div class="v" id="dash-routed">$9.25</div><div class="sub">Fare toll portion only</div></section>
+        <section class="card"><div class="k">Routed to E-ZPass</div><div class="v" id="dash-routed">$9.25</div><div class="sub">Direct account credit, simulated</div></section>
       </div>
       <section class="card" id="alert-card">
         <div class="k">Upcoming low-balance alert</div>
         <p><b>Balance is below the $25 threshold.</b></p>
-        <p class="note">In production this would request an official settlement from the rideshare platform. No personal bank recharge is required in the TollDirect model. This alert is simulated.</p>
+        <p class="note">In production this would request an authorized credit to the driver’s registered E-ZPass account. It would not pay the driver and would not use the driver’s bank.</p>
         <button class="btn-primary" id="ack-alert" type="button">Acknowledge simulated alert</button>
       </section>
       <section class="card">
-        <div class="k">Rider protection</div>
-        <p class="note">The rider is charged once, inside the trip fare. TollDirect never adds a second toll charge.</p>
+        <div class="k">No second charge</div>
+        <p class="note">The rider pays the trip fare once. The eligible toll portion is allocated, not added again. Duplicate reimbursements are blocked because the driver is never paid the toll.</p>
         <button class="btn-ghost" data-go="settle" type="button" style="width:100%;margin-top:8px">Open trip settlements</button>
       </section>
     </main>
@@ -159,35 +165,41 @@
     <main id="how" class="screen">
       <h2>How it works</h2>
       <section class="card">
+        <p><b>Not a driver reimbursement app.</b></p>
+        <p class="note">TollDirect is a proposed direct toll-payment allocation and settlement system. The passenger-funded toll portion goes to the driver’s registered E-ZPass account.</p>
         <ol class="steps">
-          <li><b>Passenger pays the trip fare once.</b><p class="note">The toll is already inside that fare. TollDirect does not create a second charge.</p></li>
-          <li><b>The toll portion is identified.</b><p class="note">A future official rideshare feed would mark the toll component of the fare.</p></li>
-          <li><b>That portion is routed to the driver’s E-ZPass account.</b><p class="note">Settlement would go to the designated transponder account, not through the driver’s personal bank.</p></li>
-          <li><b>The driver does not recharge from a personal bank account.</b><p class="note">Low balance is covered by fare toll portions already collected from riders.</p></li>
+          <li><b>Associate the trip with the driver’s E-ZPass account.</b><p class="note">A future official feed would match the active trip, vehicle, and registered transponder. Ending digits only are shown here.</p></li>
+          <li><b>Determine the eligible toll amount.</b><p class="note">Only the toll already inside the single passenger fare. No second charge. Ineligible tolls stay out.</p></li>
+          <li><b>Route it through authorized TollDirect payment routing.</b><p class="note">Passenger → authorized routing → E-ZPass account. The driver never receives or forwards the toll.</p></li>
+          <li><b>Credit the E-ZPass account and reconcile.</b><p class="note">Confirm the account credit, not a driver payout. Failures, delayed toll posts, and refunds are tracked. No personal-bank fallback.</p></li>
         </ol>
       </section>
       <section class="card">
-        <div class="k">Before launch</div>
-        <p class="note">This flow is a design prototype. It requires official agreements with the rideshare platform, the E-ZPass or toll authority, and a licensed payment provider before any real routing can happen.</p>
-        <button class="btn-primary" data-go="partners" type="button">View required partners</button>
+        <div class="k">Timing</div>
+        <p class="note">Existing E-ZPass replenishment is often not instant. Virginia E-ZPass describes automatic replenishment as usually within 24 hours of a low balance. Toll posts can also arrive later than the gantry crossing. Real-time credit is unconfirmed until an agency offers it.</p>
+        <button class="btn-primary" data-go="partners" type="button">View feasibility and partners</button>
       </section>
     </main>
 
     <main id="partners" class="screen">
-      <h2>Partner / compliance</h2>
+      <h2>Partner / feasibility</h2>
       <section class="card">
-        <div class="k">Required before any live payment</div>
+        <div class="k">What exists today</div>
+        <p class="note">Uber and Lyft currently reimburse the driver. Lyft states it does not pay toll collectors and that drivers pay agencies directly. That is the opposite of this model. No public E-ZPass API was found for a third party to credit a specific driver account.</p>
+      </section>
+      <section class="card">
+        <div class="k">Required agreements</div>
         <p><b>Rideshare platform</b></p>
-        <p class="note">Official agreement to identify the toll portion of a paid trip fare and release that portion for driver toll settlement.</p>
+        <p class="note">Official change from driver reimbursement to allocation of the fare’s toll portion to a registered E-ZPass account. Must block a second rider charge and a driver payout of the same toll.</p>
         <p><b>E-ZPass / toll authority</b></p>
-        <p class="note">Official account-credit path to a driver’s designated transponder account.</p>
+        <p class="note">Official account-credit path, account-to-trip association, posting confirmation, delayed-toll handling, and refunds. Agency-by-agency. No assumed real-time credit.</p>
         <p><b>Licensed payment provider</b></p>
-        <p class="note">Regulated movement of funds. TollDirect does not hold or move money in this prototype.</p>
+        <p class="note">Authorized movement of the allocated toll portion. TollDirect does not hold or move money in this prototype.</p>
       </section>
       <section class="card">
         <span class="pill sim">No live payments</span>
-        <p class="note">No live payments until official approvals and compliance are completed. Buttons on this prototype only change simulated status.</p>
-        <button class="btn-ghost" id="export-audit" type="button" style="width:100%">Copy simulated audit summary</button>
+        <p class="note">No live payments until those approvals exist. Buttons only change simulated status. Failures do not fall back to the driver’s bank.</p>
+        <button class="btn-ghost" id="export-audit" type="button" style="width:100%">Copy simulated allocation audit</button>
       </section>
     </main>
 
@@ -196,7 +208,7 @@
       <button data-go="settle" type="button">Trips<br>Settle</button>
       <button data-go="pass" type="button">E-ZPass<br>Balance</button>
       <button data-go="how" type="button">How<br>It works</button>
-      <button data-go="partners" type="button">Partners<br>Compliance</button>
+      <button data-go="partners" type="button">Partners<br>Feasibility</button>
     </nav>
     <div class="toast" id="toast" role="status"></div>
   </div>
@@ -206,13 +218,14 @@
       settle: 'Trip toll settlement',
       pass: 'E-ZPass balance',
       how: 'How it works',
-      partners: 'Partner and compliance'
+      partners: 'Partner feasibility'
     };
     const trips = [
-      { id: 'TD-10482', route: 'Boston to Logan via Tobin Bridge', amount: 3.50, status: 'Pending', when: 'Today 2:14 PM', audit: [['Fare toll portion identified', 'Today 2:14 PM'], ['Waiting for official platform release', 'Simulation']] },
-      { id: 'TD-10471', route: 'Cambridge to Seaport, Sumner Tunnel', amount: 6.00, status: 'Confirmed', when: 'Today 11:02 AM', audit: [['Fare toll portion identified', 'Today 11:02 AM'], ['Platform release confirmed', 'Simulation'], ['Queued for E-ZPass credit', 'Simulation']] },
-      { id: 'TD-10455', route: 'Somerville to Airport, Tobin Bridge', amount: 5.25, status: 'Sent to E-ZPass', when: 'Today 8:41 AM', audit: [['Fare toll portion identified', 'Today 8:41 AM'], ['Confirmed', 'Simulation'], ['Sent to E-ZPass account ending 4821', 'Simulation']] },
-      { id: 'TD-10390', route: 'Revere to Downtown, Callahan Tunnel', amount: 3.50, status: 'Failed', when: 'Yesterday 6:18 PM', audit: [['Fare toll portion identified', 'Yesterday 6:18 PM'], ['Settlement failed in simulation', 'No partner feed'], ['No personal bank fallback was used', 'By design']] }
+      { id: 'TD-10482', route: 'Boston to Logan via Tobin Bridge', amount: 3.50, status: 'Pending', when: 'Today 2:14 PM', audit: [['Trip linked to E-ZPass ending 4821', 'Today 2:14 PM'], ['Eligible toll portion identified from fare', 'Simulation'], ['Awaiting authorized routing', 'Not paid to driver']] },
+      { id: 'TD-10471', route: 'Cambridge to Seaport, Sumner Tunnel', amount: 6.00, status: 'Confirmed', when: 'Today 11:02 AM', audit: [['Trip linked to E-ZPass ending 4821', 'Today 11:02 AM'], ['Eligible amount confirmed', 'Simulation'], ['Queued as direct E-ZPass credit', 'Driver bank excluded']] },
+      { id: 'TD-10455', route: 'Somerville to Airport, Tobin Bridge', amount: 5.25, status: 'Sent to E-ZPass', when: 'Today 8:41 AM', audit: [['Eligible toll portion identified', 'Today 8:41 AM'], ['Authorized routing confirmed', 'Simulation'], ['Credited to E-ZPass ending 4821', 'Not a driver payout']] },
+      { id: 'TD-10390', route: 'Revere to Downtown, Callahan Tunnel', amount: 3.50, status: 'Failed', when: 'Yesterday 6:18 PM', audit: [['Eligible toll portion identified', 'Yesterday 6:18 PM'], ['Direct credit failed in simulation', 'No partner feed'], ['No driver payout and no bank fallback', 'By design']] },
+      { id: 'TD-10344', route: 'Delayed post: Tobin Bridge return', amount: 3.50, status: 'Pending', when: 'Posted late', audit: [['Gantry event delayed', 'Simulation'], ['Held for reconciliation', 'No duplicate allocation']] }
     ];
     let selected = null;
     let threshold = 25;
@@ -278,7 +291,7 @@
     document.getElementById('advance').onclick = () => {
       if (!selected) return;
       const order = ['Pending', 'Confirmed', 'Sent to E-ZPass'];
-      if (selected.status === 'Failed') { toast('Failed simulation stays failed. No bank fallback.'); return; }
+      if (selected.status === 'Failed') { toast('Failed direct credit stays failed. No driver payout and no bank fallback.'); return; }
       const i = order.indexOf(selected.status);
       if (i < order.length - 1) {
         selected.status = order[i + 1];
@@ -303,7 +316,7 @@
       toast('Simulated threshold saved at $' + threshold + '.');
     };
     document.getElementById('export-audit').onclick = async () => {
-      const text = 'TollDirect simulation audit. No live payments. Account ending 4821. ' + trips.map(t => t.id + ' ' + t.status + ' ' + money(t.amount)).join('; ');
+      const text = 'TollDirect simulation. Direct E-ZPass allocation, not a reimbursement. Account ending 4821. Driver bank excluded. ' + trips.map(t => t.id + ' ' + t.status + ' ' + money(t.amount)).join('; ');
       try { await navigator.clipboard.writeText(text); toast('Simulated audit summary copied.'); }
       catch (e) { toast(text); }
     };
