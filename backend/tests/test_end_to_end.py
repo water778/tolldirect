@@ -1,6 +1,7 @@
 """End-to-end tests for the simulated TollDirect settlement path."""
 
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -8,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tolldirect.engine import Engine
-from tolldirect.ledger import Ledger
+from tolldirect.store import Store
 from tolldirect.models import Trip, Crossing, EzPassAccount, SettlementStatus
 from tolldirect.adapters.synthetic import SyntheticTnc, SyntheticEzPass, SyntheticPayments
 
@@ -34,7 +35,8 @@ def world(fail_tokens=None, delayed=None, extra_crossings=None):
         crossings.extend(extra_crossings)
     ez = SyntheticEzPass(accounts, crossings, delayed or {"GX-1": 350})
     pay = SyntheticPayments(fail_tokens or {"pm_fail"})
-    engine = Engine(SyntheticTnc(trips), ez, ez, pay, Ledger())
+    store = Store(tempfile.mktemp(suffix=".db"))
+    engine = Engine(SyntheticTnc(trips), ez, ez, pay, store)
     return engine, ez, pay
 
 
@@ -100,13 +102,14 @@ class EndToEnd(unittest.TestCase):
         engine, _, _ = world()
         engine.ingest()
         engine.apply_official_posts()
-        kinds = [e.kind for e in engine.ledger.for_crossing("GX-1")]
+        kinds = [e.kind for e in engine.store.ledger() if e.crossing_id == "GX-1"]
         self.assertEqual(kinds[0], "crossing_detected")
         self.assertIn("matched", kinds)
         self.assertIn("passenger_charged", kinds)
         self.assertIn("credited_to_ezpass", kinds)
         self.assertIn("reconciled", kinds)
-        self.assertEqual(len(engine.ledger.all()), len(set(e.entry_id for e in engine.ledger.all())))
+        ids = [e.entry_id for e in engine.store.ledger()]
+        self.assertEqual(len(ids), len(set(ids)))
 
 
 if __name__ == "__main__":

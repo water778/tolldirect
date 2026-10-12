@@ -1,6 +1,7 @@
 """Independent verification of the TollDirect settlement engine."""
 
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -8,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tolldirect.engine import Engine
-from tolldirect.ledger import Ledger
+from tolldirect.store import Store
 from tolldirect.models import Trip, Crossing, EzPassAccount, SettlementStatus
 from tolldirect.adapters.synthetic import SyntheticTnc, SyntheticEzPass, SyntheticPayments
 
@@ -19,7 +20,7 @@ NOW = datetime(2026, 10, 12, 18, 0, tzinfo=timezone.utc)
 def build(trips, accounts, crossings, delayed=None, fail_tokens=None, fail_accounts=None):
     ez = SyntheticEzPass(accounts, crossings, delayed or {}, fail_accounts or set())
     pay = SyntheticPayments(fail_tokens or set())
-    engine = Engine(SyntheticTnc(trips), ez, ez, pay, Ledger())
+    engine = Engine(SyntheticTnc(trips), ez, ez, pay, Store(tempfile.mktemp(suffix=".db")))
     return engine, ez, pay
 
 
@@ -138,7 +139,7 @@ class EngineVerification(unittest.TestCase):
         engine, _, _ = build(trips, accounts, crossings, {"GX-1": 350}, {"pm_bad"})
         engine.ingest()
         engine.apply_official_posts()
-        ids = [e.entry_id for e in engine.ledger.all()]
+        ids = [e.entry_id for e in engine.store.ledger()]
         self.assertEqual(len(ids), len(set(ids)))
         report = engine.reconcile()
         self.assertTrue(report["balanced"])

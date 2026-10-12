@@ -22,4 +22,15 @@ python3 -m unittest tests.test_end_to_end -v
 - `tolldirect/adapters/synthetic.py` — synthetic data only
 - `tolldirect/dashboard.py` — internal monitor
 
-A duplicate crossing does not reopen or recharge the original. A passenger charge is not treated as settled until the E-ZPass credit is confirmed. A failed credit stays unresolved and can be retried without a second passenger charge.
+Settlements and the audit ledger are stored in SQLite. A restart between a passenger charge and E-ZPass credit does not create a second charge.
+
+```
+cd backend
+python3 -m unittest discover -s tests -v
+python3 demo.py
+python3 control.py
+```
+
+Control Center: http://127.0.0.1:8787
+
+Official Uber and E-ZPass adapters are not implemented.
