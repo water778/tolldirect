@@ -21,11 +21,12 @@ class SyntheticTnc(TripSource):
 
 
 class SyntheticEzPass(CrossingSource, EzPassDirectory):
-    def __init__(self, accounts: List[EzPassAccount], crossings: List[Crossing], delayed: Dict[str, int]) -> None:
+    def __init__(self, accounts: List[EzPassAccount], crossings: List[Crossing], delayed: Dict[str, int], fail_accounts: Optional[set] = None) -> None:
         self.accounts = {a.vehicle_id: a for a in accounts}
         self.by_id = {a.account_id: a for a in accounts}
         self._queue = list(crossings)
         self.delayed = dict(delayed)
+        self.fail_accounts = fail_accounts or set()
         self.credits: List[dict] = []
         self._seen = set()
 
@@ -40,11 +41,20 @@ class SyntheticEzPass(CrossingSource, EzPassDirectory):
         return self.accounts.get(vehicle_id)
 
     def credit(self, account_id: str, amount_cents: int, reference: str) -> str:
+        if account_id in self.fail_accounts:
+            raise RuntimeError("simulated E-ZPass credit failed")
         account = self.by_id[account_id]
         credit_id = f"EZC-{len(self.credits)+1:04d}"
         account.balance_cents += amount_cents
         self.credits.append({"id": credit_id, "account_id": account_id, "amount_cents": amount_cents, "reference": reference})
         return credit_id
+
+    def reverse_credit(self, account_id: str, amount_cents: int, reference: str) -> str:
+        account = self.by_id[account_id]
+        account.balance_cents -= amount_cents
+        rev = f"EZR-{len(self.credits)+1:04d}"
+        self.credits.append({"id": rev, "account_id": account_id, "amount_cents": -amount_cents, "reference": reference})
+        return rev
 
 
 class SyntheticPayments(PassengerPayment):

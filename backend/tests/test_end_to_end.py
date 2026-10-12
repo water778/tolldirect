@@ -81,11 +81,11 @@ class EndToEnd(unittest.TestCase):
     def test_duplicate_crossing_is_blocked(self):
         engine, ez, pay = world(extra_crossings=[Crossing("GX-1", "V-1", "MA1", "TAG1", "Tobin Bridge", NOW)])
         engine.ingest()
-        self.assertEqual(engine.get("GX-1").status, SettlementStatus.DUPLICATE_BLOCKED)
-        self.assertEqual(len(pay.charges), 0)
+        self.assertEqual(engine.duplicates_blocked, 1)
+        self.assertEqual(engine.get("GX-1").status, SettlementStatus.AWAITING_OFFICIAL_AMOUNT)
         engine.apply_official_posts()
-        self.assertEqual(len(pay.charges), 0)
-        self.assertEqual(ez.by_id["EZ-1"].balance_cents, 2500)
+        self.assertEqual(len(pay.charges), 1)
+        self.assertEqual(ez.by_id["EZ-1"].balance_cents, 2850)
 
     def test_refund_reverses_passenger_charge(self):
         engine, _, pay = world()

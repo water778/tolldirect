@@ -34,6 +34,9 @@ class EzPassDirectory(ABC):
     def credit(self, account_id: str, amount_cents: int, reference: str) -> str:
         raise NotImplementedError
 
+    def reverse_credit(self, account_id: str, amount_cents: int, reference: str) -> str:
+        raise NotImplementedError
+
 
 class PassengerPayment(ABC):
     """Charges only the passenger method already authorized for the trip. Never the driver."""

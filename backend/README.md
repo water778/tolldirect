@@ -22,4 +22,4 @@ python3 -m unittest tests.test_end_to_end -v
 - `tolldirect/adapters/synthetic.py` — synthetic data only
 - `tolldirect/dashboard.py` — internal monitor
 
-Official Uber and E-ZPass adapters are not implemented. They require written partner access that does not exist.
+A duplicate crossing does not reopen or recharge the original. A passenger charge is not treated as settled until the E-ZPass credit is confirmed. A failed credit stays unresolved and can be retried without a second passenger charge.

@@ -83,6 +83,9 @@ class Settlement:
     amount_cents: Optional[int] = None
     passenger_charge_id: Optional[str] = None
     ezpass_credit_id: Optional[str] = None
+    passenger_method_token: Optional[str] = None
+    adjustment_cents: int = 0
+    retry_count: int = 0
     failure_reason: Optional[str] = None
     created_at: datetime = field(default_factory=utcnow)
     updated_at: datetime = field(default_factory=utcnow)
