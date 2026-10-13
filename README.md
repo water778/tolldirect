@@ -9,3 +9,14 @@ This repository does not connect to Uber, Lyft, E-ZPass, banks, cards, or Stripe
 Open `index.html` for the mobile prototype. The simulated backend is in `backend/`.
 
 EZDriveMA customer service refused a pre-debit credit on 12 October 2026. See `EZDRIVEMA-REPLY.md`. The backend remains simulation only.
+
+
+## Proof of concept
+
+From the `backend` folder:
+
+```bat
+python poc_demo.py
+```
+
+See `POC.md` for the Windows steps and the boundary between simulation and required external authorization.
