@@ -44,3 +44,13 @@ Official Uber and E-ZPass adapters are not implemented.
 - `tolldirect/core/coordinator.py` — decision wiring for tests
 
 A route is simulated until both a passenger charge id and an E-ZPass credit id exist. The driver bank is not a destination.
+
+## Provider adapters
+
+- `tolldirect/adapters/contracts.py` — trip, crossing, payment, and E-ZPass credit contracts
+- `tolldirect/adapters/providers.py` — synthetic implementations
+- `tolldirect/adapters/integration.py` — durable event runner and transaction report
+
+```
+python3 -m unittest tests.test_adapter_integration -v
+```

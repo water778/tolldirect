@@ -122,3 +122,26 @@ These are not implemented and are not assumed to exist:
 - Written approvals from each party before any live use.
 
 Until those approvals exist, every event remains simulated.
+
+## Provider-independent adapter boundary
+
+The core settlement rules do not import a provider. Future authorized adapters implement four contracts in `backend/tolldirect/adapters/contracts.py`:
+
+1. `TripEventSource` — active passenger trip events. No driver payment method.
+2. `TollCrossingSource` — gantry records and later official posted amounts.
+3. `PassengerPaymentConfirmation` — charge and confirmation against the passenger method already authorized for the trip.
+4. `EzPassCreditConfirmation` — credit and confirmation to the vehicle E-ZPass account only.
+
+`IntegrationRunner` applies these events in arrival order. Delayed posts, duplicates, out-of-order records, partial failures, retries, refunds, and commercial adjustments are handled without a second passenger charge. A simulated confirmation is not a real E-ZPass settlement.
+
+### Requirements that simulation cannot establish
+
+- Whether Uber or Lyft will expose an authorized active-trip feed and charge the existing passenger method for a toll portion.
+- Whether MassDOT / E-ZPass MA will accept a credit to a vehicle account without first debiting the prepaid balance.
+- Official posting latency, and whether a credit can be applied before or with the toll post.
+- Whether a partner arrangement can prevent Pay By Plate or penalties when the account is at zero at the time of travel.
+- Commercial-rate adjustment notification and timing.
+- Provider idempotency, refund, and dispute behavior.
+- Consent and authorization to associate a vehicle with an E-ZPass account.
+
+Until those capabilities are confirmed in writing, every event remains simulated.
