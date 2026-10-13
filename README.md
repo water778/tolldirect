@@ -33,3 +33,8 @@ See `POC.md` for the Windows steps and the boundary between simulation and requi
 - `docs/REPOSITORY-REVIEW.md` — security, tests, and reproducibility
 
 Real-time external E-ZPass credit is not verified.
+
+
+## Local shadow test
+
+From `backend/`, run `python shadow.py`. See `docs/SHADOW-TEST.md` for the private iPhone test. It is not a public deployment.
