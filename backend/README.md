@@ -34,3 +34,13 @@ python3 control.py
 Control Center: http://127.0.0.1:8787
 
 Official Uber and E-ZPass adapters are not implemented.
+
+## Core routing modules
+
+- `tolldirect/core/matching.py` — trip-to-toll match
+- `tolldirect/core/toll.py` — recorded-amount verification
+- `tolldirect/core/routing.py` — E-ZPass-only payment route
+- `tolldirect/core/reconciliation.py` — lifecycle and balance
+- `tolldirect/core/coordinator.py` — decision wiring for tests
+
+A route is simulated until both a passenger charge id and an E-ZPass credit id exist. The driver bank is not a destination.

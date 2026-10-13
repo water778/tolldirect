@@ -86,3 +86,39 @@ Required before any live use: written MassDOT approval, one TNC settlement chang
 ## Simulated proof of concept
 
 `index.html` demonstrates the sequence with sample events, delayed posting, a failed credit, and a commercial-rate adjustment. Every payment state is labeled simulation. No credentials are collected and no money moves.
+
+## Core payment-routing modules (simulation)
+
+Added in the next engineering phase. These modules formalize the rules the durable engine already enforces. They do not process money and do not replace the existing 21-test engine.
+
+| Module | Role |
+| --- | --- |
+| `core/matching.py` | Matches one crossing to exactly one active passenger trip by vehicle and time. Zero or multiple trips produce no charge. |
+| `core/toll.py` | Accepts only a recorded official amount. Missing, zero, or negative amounts are never invented. Commercial change is a delta. |
+| `core/routing.py` | Plans a passenger-funded route whose only destination is the vehicle E-ZPass account. No driver bank field exists. |
+| `core/reconciliation.py` | Classifies unmatched, pending, charged-pending-credit, reconciled, failed, refunded, disputed, and insufficient-funds-risk. |
+| `core/coordinator.py` | Wires the modules for decision tests. Confirmation requires both a passenger charge id and an E-ZPass credit id. |
+
+A simulated charge is not a confirmed E-ZPass credit. Confirmation is a separate state and is only set after a credit identifier exists.
+
+### Transaction lifecycle
+
+1. Crossing detected.
+2. Match: exactly one active trip, or unresolved.
+3. Official amount pending, or verified recorded amount.
+4. Route planned to vehicle E-ZPass only.
+5. Simulated passenger charge.
+6. Simulated E-ZPass credit.
+7. Reconciled only when charge id and credit id both exist and amounts match.
+8. Failure, refund, dispute, or insufficient-funds risk stays visible and is not converted into driver funding.
+
+### External integrations still required
+
+These are not implemented and are not assumed to exist:
+
+- Uber or Lyft: authorized active-trip feed, existing passenger payment method, one toll-portion charge, suppression of driver reimbursement.
+- MassDOT / E-ZPass MA: authorized crossing feed, official posted amount including commercial adjustment, and a credit path to the vehicle account that does not debit the driver first.
+- Licensed payment provider: only if funds must move outside the TNC’s existing passenger charge.
+- Written approvals from each party before any live use.
+
+Until those approvals exist, every event remains simulated.
