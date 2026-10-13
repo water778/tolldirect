@@ -10,14 +10,21 @@ python3 seed_demo.py
 python3 -m unittest discover -s tests -v
 ```
 
+To enable the local read-only dashboard:
+
+```
+export TOLLDIRECT_DEMO_PASSWORD=your-local-only-password
+```
+
+Never commit the password or set it on a public deployment.
+
 ## Cloud
 
-The existing Vercel account is used. No new paid service is required.
+No public deployment of the dashboard is authorized.
 
 - Health: `GET /health` — public, no transaction data
-- Dashboard: `GET /` — HTTP Basic authentication
+- Dashboard: `GET /` — disabled unless TOLLDIRECT_DEMO_PASSWORD is set in the environment (local simulation only)
 - Demo user: `demo`
-- Demo password: `tolldirect-sim`
 
 POST, PUT, and DELETE are rejected. There are no payment or admin controls.
 
