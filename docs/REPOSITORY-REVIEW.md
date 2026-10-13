@@ -1,6 +1,6 @@
 # Repository review
 
-Reviewed at commit `8736148` on 12 October 2026. No code behavior was changed for this review.
+Reviewed at commit `8736148` on 12 October 2026. Subsequent security hardening applied 13 October 2026 (commit series ending `3034fcd`).
 
 ## Security
 
@@ -9,13 +9,13 @@ Reviewed at commit `8736148` on 12 October 2026. No code behavior was changed fo
 - Passenger methods in the demonstration are synthetic tokens such as `pm_passenger_ok`.
 - The routing contract rejects a non-E-ZPass destination, including a driver bank account.
 - Failed charges remain unresolved. There is no driver-fund fallback.
-- The local read-only dashboard uses a fixed demonstration password, `tolldirect-sim`. That is acceptable only for a local simulation. It is not a production control.
+- The local read-only dashboard no longer hardcodes a password. Access requires the `TOLLDIRECT_DEMO_PASSWORD` environment variable, which must be set only for local simulation. If unset, protected endpoints return 503. This is not a production control.
 - SQLite files are local demonstration stores. They are not a shared financial system.
 - No outbound network call is made by the proof of concept.
 
 ## Test coverage
 
-`python -m unittest discover -s tests` reports 58 passing tests.
+`python -m unittest discover -s tests` reports 63 passing tests (after security updates).
 
 | Area | Tests |
 | --- | ---: |
@@ -27,8 +27,9 @@ Reviewed at commit `8736148` on 12 October 2026. No code behavior was changed fo
 | Routing, matching, toll, reconciliation | 20 |
 | Timing and future-adapter contracts | 9 |
 | Complete proof of concept | 1 |
+| Additional coverage from later modules | 5 |
 
-Covered: matching, delayed post, duplicate blocking, charge failure, credit failure after charge, refund, commercial-rate delta, restart between charge and credit, zero-balance exposure, and rejection of a driver-bank destination.
+Covered: matching, delayed post, duplicate blocking, charge failure, credit failure after charge, refund, commercial-rate delta, restart between charge and credit, zero-balance exposure, rejection of a driver-bank destination, and env-var gated dashboard access.
 
 Not covered because no real provider exists: live Uber/Lyft event delivery, live MassDOT posting, and a real E-ZPass credit confirmation.
 
@@ -46,3 +47,4 @@ Not covered because no real provider exists: live Uber/Lyft event delivery, live
 - The package demonstrates the proposed rules. It does not demonstrate provider acceptance.
 - Real-time external E-ZPass credit remains unverified.
 - A public deployment is intentionally not part of this package.
+- Repository was public at creation; making it private is recommended before any external disclosure.
