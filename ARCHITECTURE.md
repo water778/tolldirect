@@ -145,3 +145,29 @@ The core settlement rules do not import a provider. Future authorized adapters i
 - Consent and authorization to associate a vehicle with an E-ZPass account.
 
 Until those capabilities are confirmed in writing, every event remains simulated.
+
+## Payment timing and zero-balance protection
+
+`core/timing.py` separates four states. Only the last changes the E-ZPass balance:
+
+1. Authorized — passenger method is authorized for the trip. Balance unchanged.
+2. Captured — passenger charge is captured. Balance unchanged.
+3. Settled — passenger funds are settled to the payment path. Balance unchanged.
+4. Confirmed E-ZPass credit — the vehicle account balance increases.
+
+A confirmed credit cannot be timestamped before capture. Real-time external E-ZPass credit is not verified and is not assumed.
+
+Three proposed timings are modeled for a zero starting balance:
+
+- Before crossing: only covers the toll if capture can complete before the gantry. Not an E-ZPass capability.
+- At crossing: same constraint. Not an E-ZPass capability.
+- After official post: matches known delayed posting. If the account is at zero at travel, the toll can be assessed before the credit lands. This exposure is reported. No driver replenishment is introduced.
+
+Run `python3 demo_timing.py` from `backend/` for the timestamped demonstration.
+
+### Timing requirements a future E-ZPass integration must satisfy
+
+- A credit must be confirmable to the vehicle account without debiting the driver first.
+- If the account can be at zero at travel, the credit must be effective before the toll is assessed, or MassDOT must waive Pay By Plate and penalties for that passenger toll.
+- The integration must expose credit confirmation separately from passenger authorization, capture, and settlement.
+- No such real-time or pre-assessment credit path has been verified.

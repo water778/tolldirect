@@ -54,3 +54,12 @@ A route is simulated until both a passenger charge id and an E-ZPass credit id e
 ```
 python3 -m unittest tests.test_adapter_integration -v
 ```
+
+## Timing
+
+```
+python3 demo_timing.py
+python3 -m unittest tests.test_timing_protection -v
+```
+
+Authorization, capture, and settlement do not change the E-ZPass balance. A future real adapter is unimplemented and fails its contract tests.
