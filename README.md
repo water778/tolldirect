@@ -20,3 +20,16 @@ python poc_demo.py
 ```
 
 See `POC.md` for the Windows steps and the boundary between simulation and required external authorization.
+
+
+## Demonstration package
+
+- `docs/WINDOWS-DEMO.md` — Windows steps
+- `docs/TRANSACTION-REPORT.md` — $3.50 Tobin Bridge report
+- `docs/TIMING-COMPARISON.md` — pre-assessment versus delayed credit
+- `docs/architecture.svg` — architecture diagram
+- `docs/PARTNER-READINESS.md` — draft for a future discussion, not sent
+- `docs/FEASIBILITY-MATRIX.md` — implemented, simulated, unverified, required
+- `docs/REPOSITORY-REVIEW.md` — security, tests, and reproducibility
+
+Real-time external E-ZPass credit is not verified.

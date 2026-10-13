@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620">
+  <rect width="1100" height="620" fill="#f7f8fa"/>
+  <text x="40" y="42" font-family="Segoe UI, Arial" font-size="24" font-weight="700" fill="#1b2430">TollDirect architecture — simulation boundary</text>
+  <text x="40" y="68" font-family="Segoe UI, Arial" font-size="14" fill="#5b6775">Passenger funds go to the vehicle E-ZPass account. No driver bank account is in the path.</text>
+
+  <rect x="40" y="110" width="200" height="70" rx="8" fill="#ffffff" stroke="#c5ced8"/>
+  <text x="140" y="140" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" font-weight="700" fill="#1b2430">Trip events</text>
+  <text x="140" y="160" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#5b6775">synthetic Uber / Lyft</text>
+
+  <rect x="300" y="110" width="200" height="70" rx="8" fill="#ffffff" stroke="#c5ced8"/>
+  <text x="400" y="140" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" font-weight="700" fill="#1b2430">Crossing records</text>
+  <text x="400" y="160" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#5b6775">synthetic gantry / post</text>
+
+  <rect x="40" y="250" width="460" height="90" rx="8" fill="#e8f1fb" stroke="#2f6fad"/>
+  <text x="270" y="284" text-anchor="middle" font-family="Segoe UI, Arial" font-size="16" font-weight="700" fill="#1b2430">Core rules</text>
+  <text x="270" y="308" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1b2430">match vehicle + active trip → verify recorded amount → route to E-ZPass only</text>
+
+  <rect x="40" y="400" width="210" height="70" rx="8" fill="#ffffff" stroke="#c5ced8"/>
+  <text x="145" y="430" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" font-weight="700" fill="#1b2430">Passenger payment</text>
+  <text x="145" y="450" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#5b6775">authorize / capture / settle</text>
+
+  <rect x="290" y="400" width="210" height="70" rx="8" fill="#ffffff" stroke="#c5ced8"/>
+  <text x="395" y="430" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" font-weight="700" fill="#1b2430">E-ZPass credit</text>
+  <text x="395" y="450" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#5b6775">confirmed credit only</text>
+
+  <rect x="560" y="250" width="240" height="90" rx="8" fill="#ffffff" stroke="#c5ced8"/>
+  <text x="680" y="284" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" font-weight="700" fill="#1b2430">Durable ledger</text>
+  <text x="680" y="308" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#5b6775">SQLite, idempotency, reconciliation</text>
+
+  <rect x="840" y="180" width="220" height="230" rx="8" fill="#fff6f4" stroke="#b42318"/>
+  <text x="950" y="214" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" font-weight="700" fill="#b42318">Not in the path</text>
+  <text x="950" y="246" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1b2430">Driver bank account</text>
+  <text x="950" y="270" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1b2430">Driver recharge</text>
+  <text x="950" y="294" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1b2430">Second passenger charge</text>
+  <text x="950" y="318" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1b2430">Uber / Lyft advance</text>
+  <text x="950" y="354" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#b42318">Real-time E-ZPass credit</text>
+  <text x="950" y="374" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#b42318">is not verified</text>
+
+  <path d="M140 180 V250" stroke="#2f6fad" fill="none" stroke-width="2"/>
+  <path d="M400 180 V250" stroke="#2f6fad" fill="none" stroke-width="2"/>
+  <path d="M145 340 V400" stroke="#2f6fad" fill="none" stroke-width="2"/>
+  <path d="M395 340 V400" stroke="#2f6fad" fill="none" stroke-width="2"/>
+  <path d="M500 295 H560" stroke="#2f6fad" fill="none" stroke-width="2"/>
+  <text x="40" y="530" font-family="Segoe UI, Arial" font-size="13" fill="#5b6775">Every box on the left is a replaceable adapter. The core rules do not change when a real provider is authorized.</text>
+  <text x="40" y="552" font-family="Segoe UI, Arial" font-size="13" fill="#5b6775">A passenger authorization is not an E-ZPass balance increase. Only a confirmed credit changes the account.</text>
+</svg>
