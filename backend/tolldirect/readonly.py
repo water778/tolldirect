@@ -1,16 +1,24 @@
-"""Read-only simulation dashboard. No payment controls."""
+"""Read-only simulation dashboard. No payment controls.
+
+Protected endpoints require the TOLLDIRECT_DEMO_PASSWORD environment variable.
+This is for local simulation demonstration only. Do not set it on any public deployment.
+"""
 
 import base64
 import json
+import os
 from pathlib import Path
 from .store import Store
 
 DEMO_USER = "demo"
-DEMO_PASSWORD = "tolldirect-sim"
+# Password is never hardcoded. Set TOLLDIRECT_DEMO_PASSWORD only for local use.
+DEMO_PASSWORD = os.environ.get("TOLLDIRECT_DEMO_PASSWORD")
 DB_PATH = Path(__file__).resolve().parent / "data" / "demo-readonly.db"
 
 
 def authorized(header: str) -> bool:
+    if not DEMO_PASSWORD:
+        return False  # Fail closed if no password configured
     if not header or not header.startswith("Basic "):
         return False
     try:
@@ -79,6 +87,8 @@ def handle(method: str, path: str, authorization: str):
         return 405, "application/json", json.dumps({"error": "read-only"})
     if path == "/health":
         return 200, "application/json", json.dumps(health())
+    if not DEMO_PASSWORD:
+        return 503, "application/json", json.dumps({"error": "demo dashboard disabled; set TOLLDIRECT_DEMO_PASSWORD for local simulation use only"})
     if not authorized(authorization):
         return 401, "application/json", json.dumps({"error": "authentication required"})
     if path in {"/", "/dashboard"}:
